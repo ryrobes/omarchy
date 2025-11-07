@@ -125,20 +125,13 @@ parse_theme_colors() {
 # Trigger GTK theme reload without killing applications
 # Uses the "theme toggle" trick to force all GTK apps to reload CSS
 reload_gtk_theme() {
-    local current_theme
-    current_theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+# Force dark mode (with XDG vars set, this should stick)
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null
 
-    # Remove quotes from theme name
-    current_theme="${current_theme//\'/}"
-
-    # Toggle to a different theme temporarily
-    local temp_theme="Adwaita"
-    [[ "$current_theme" == "Adwaita" ]] && temp_theme="Adwaita-dark"
-
-    # Switch away and back to force reload
-    gsettings set org.gnome.desktop.interface gtk-theme "$temp_theme" 2>/dev/null
-    sleep 0.1
-    gsettings set org.gnome.desktop.interface gtk-theme "$current_theme" 2>/dev/null
+    # Apply nwg-look settings if available
+    if command -v nwg-look >/dev/null 2>&1; then
+        nwg-look -a
+    fi
 }
 
 # ============================================================================
@@ -399,6 +392,106 @@ menuitem:hover {
 
 .nautilus-canvas-item {
     color: @view_fg_color;
+}
+
+/* Thunar specific - comprehensive selectors */
+
+/* Thunar window - all toolbars and statusbars */
+window.thunar toolbar,
+window.thunar grid toolbar,
+window.thunar toolbar.horizontal,
+window.thunar #location-toolbar,
+.thunar toolbar,
+.thunar #location-toolbar,
+grid toolbar.horizontal,
+grid.horizontal toolbar {
+    background-color: @card_bg_color;
+    color: @foreground;
+    border: none;
+}
+
+window.thunar statusbar,
+.thunar statusbar,
+window.thunar grid statusbar {
+    background-color: @card_bg_color;
+    color: @foreground;
+    border-top: 1px solid @borders;
+}
+
+/* Generic toolbar/statusbar for any GTK app that might need it */
+toolbar,
+GtkToolbar {
+    background-color: @headerbar_bg_color;
+    color: @headerbar_fg_color;
+}
+
+statusbar {
+    background-color: @headerbar_bg_color;
+    color: @headerbar_fg_color;
+}
+
+/* Thunar message_area (location bar area) */
+.message_area,
+#message_area,
+window.thunar .message_area,
+window.thunar #message_area {
+    background-color: @card_bg_color;
+    color: @foreground;
+}
+
+/* Thunar sidebar */
+.thunar .sidebar,
+window.thunar .sidebar,
+window.thunar .shortcuts-pane {
+    background-color: @sidebar_bg_color;
+    color: @sidebar_fg_color;
+}
+
+/* Thunar main view */
+.thunar .standard-view,
+window.thunar .standard-view {
+    background-color: @view_bg_color;
+    color: @view_fg_color;
+}
+
+.thunar .standard-view:selected,
+window.thunar .standard-view:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+}
+
+/* Thunar containers */
+.thunar paned,
+window.thunar paned {
+    background-color: @background;
+}
+
+.thunar scrolledwindow,
+window.thunar scrolledwindow {
+    background-color: @view_bg_color;
+}
+
+/* Thunar path bar buttons */
+window.thunar toolbar button,
+.thunar toolbar button {
+    background-color: @card_bg_color;
+    color: @foreground;
+    border: none;
+}
+
+window.thunar toolbar button:hover,
+.thunar toolbar button:hover {
+    background-color: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+/* Thunar shortcuts/sidebar selection */
+window.thunar .shortcuts-pane row:selected,
+window.thunar .sidebar row:selected,
+.thunar .shortcuts-pane row:selected,
+.thunar .sidebar row:selected {
+    background-color: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
 }
 GTK_EOF
 }
